@@ -1,14 +1,14 @@
-const emotions = {};
+const data = {};
 const gridSize = 365;
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadEmotions();
+    loadData();
     createGrid();
     document.getElementById('file-input').addEventListener('change', loadFile);
     document.getElementById('save-button').addEventListener('click', saveToFile);
 });
 
-function loadEmotions() {
+function loadData() {
     const sampleData = {
         "Emotion Tracker": {
             "Happy": "#FFD700",
@@ -17,17 +17,17 @@ function loadEmotions() {
             "Neutral": "#A9A9A9"
         }
     };
-    Object.assign(emotions, sampleData["Emotion Tracker"]);
-    displayEmotions();
+    Object.assign(data, sampleData["Emotion Tracker"]);
+    displayData();
 }
 
-function displayEmotions() {
-    const container = document.getElementById('emotion-container');
-    for (const [emotion, color] of Object.entries(emotions)) {
+function displayData() {
+    const container = document.getElementById('data-container');
+    for (const [key, color] of Object.entries(data)) {
         const div = document.createElement('div');
-        div.className = 'emotion-label';
+        div.className = 'key-label';
         div.style.color = color;
-        div.textContent = `${emotion}: ${color}`;
+        div.textContent = `${key}: ${color}`;
         container.appendChild(div);
     }
 }
@@ -37,18 +37,18 @@ function createGrid() {
     for (let i = 0; i < gridSize; i++) {
         const box = document.createElement('div');
         box.className = 'box';
-        box.addEventListener('click', () => chooseEmotion(box));
+        box.addEventListener('click', () => chooseKey(box));
         gridContainer.appendChild(box);
     }
 }
 
-function chooseEmotion(box) {
-    const emotion = prompt("Enter your emotion (Happy, Sad, Angry, Neutral):");
-    if (emotions[emotion]) {
-        box.style.backgroundColor = emotions[emotion];
-        box.dataset.emotion = emotion;
+function chooseKey(box) {
+    const key = prompt("Enter your key (Happy, Sad, Angry, Neutral):");
+    if (data[key]) {
+        box.style.backgroundColor = data[key];
+        box.dataset.key = key;
     } else {
-        alert("Invalid emotion!");
+        alert("Invalid key!");
     }
 }
 
@@ -57,19 +57,19 @@ function loadFile(event) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const jsonData = JSON.parse(e.target.result);
-        Object.assign(emotions, jsonData["Emotion Tracker"]);
-        displayEmotions();
+        Object.assign(data, jsonData["Emotion Tracker"]);
+        displayData();
     };
     reader.readAsText(file);
 }
 
 function saveToFile() {
-    const jsonData = JSON.stringify({ "Emotion Tracker": emotions }, null, 2);
+    const jsonData = JSON.stringify({ "Emotion Tracker": data }, null, 2);
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'emotions.json';
+    a.download = 'data.json';
     a.click();
     URL.revokeObjectURL(url);
 }
