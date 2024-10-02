@@ -1,4 +1,5 @@
 let selectedBox = null;
+let lastFilledIndex = -1;
 
 const data = {};
 const gridSize = 365;
@@ -43,7 +44,13 @@ function createGrid() {
     for (let i = 0; i < gridSize; i++) {
         const box = document.createElement('div');
         box.className = 'box';
+        box.dataset.index = i;
         box.addEventListener('click', () => chooseKey(box));
+
+        if (i !== 0) {
+            box.classList.add('disabled');
+        }
+
         gridContainer.appendChild(box);
     }
 }
@@ -65,16 +72,28 @@ function generateEmotionPicker() {
 }
 
 function chooseKey(box) {
-    const emotionPicker = document.getElementById('emotion-picker');
-    emotionPicker.style.display = 'flex';
+    const boxIndex = parseInt(box.dataset.index);
 
-    selectedBox = box;
+    if (boxIndex === lastFilledIndex + 1) {
+        const emotionPicker = document.getElementById('emotion-picker');
+        emotionPicker.style.display = 'flex';
+        selectedBox = box;
+    }
 }
 
 function selectEmotion(emotion) {
     if (selectedBox && data[emotion]) {
         selectedBox.style.backgroundColor = data[emotion];
         selectedBox.dataset.key = emotion;
+
+        lastFilledIndex = parseInt(selectedBox.dataset.index);
+
+        selectedBox.classList.add('disabled');
+        
+        const nextBox = document.querySelector(`[data-index="${lastFilledIndex + 1}"]`);
+        if (nextBox) {
+            nextBox.classList.remove('disabled');
+        }
     }
     const emotionPicker = document.getElementById('emotion-picker');
     emotionPicker.style.display = 'none';
