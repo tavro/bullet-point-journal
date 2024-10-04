@@ -1,6 +1,7 @@
 {
     "Emotion Tracker": {
         "Metadata": {
+            "Title": "Emotion Tracker",
             "Year": 2024
         },
         "Alternatives": {
@@ -8,9 +9,6 @@
             "Sad": "#1E90FF",
             "Angry": "#FF4500",
             "Neutral": "#A9A9A9"
-        },
-        "Data": {
-            
         }
     }
 }

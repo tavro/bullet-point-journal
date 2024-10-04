@@ -14,14 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadData() {
     const sampleData = {
         "Emotion Tracker": {
-            "Happy": "#FFD700",
-            "Sad": "#1E90FF",
-            "Angry": "#FF4500",
-            "Neutral": "#A9A9A9"
+            "Metadata": {
+                "Title": "Emotion Tracker",
+                "Year": 2024
+            },
+            "Alternatives": {
+                "Happy": "#FFD700",
+                "Sad": "#1E90FF",
+                "Angry": "#FF4500",
+                "Neutral": "#A9A9A9"
+            }
         }
     };
 
-    Object.assign(data, sampleData["Emotion Tracker"]);
+    Object.assign(data, sampleData["Emotion Tracker"]["Alternatives"]);
+    updateHeadings(sampleData["Emotion Tracker"]["Metadata"]);
     displayData();
     generateEmotionPicker();
 }
@@ -41,18 +48,65 @@ function displayData() {
 function createGrid() {
     const gridContainer = document.getElementById('grid-container');
     gridContainer.innerHTML = '';
-    for (let i = 0; i < gridSize; i++) {
-        const box = document.createElement('div');
-        box.className = 'box';
-        box.dataset.index = i;
-        box.addEventListener('click', () => chooseKey(box));
 
-        if (i !== 0) {
-            box.classList.add('disabled');
+    const year = parseInt(document.querySelector('h1').textContent);
+
+    const daysInMonths = getDaysInMonths(year);
+
+    let boxIndex = 0;
+    for (let month = 0; month < daysInMonths.length; month++) {
+        const monthDiv = document.createElement('div');
+        monthDiv.className = 'month-container';
+
+        const monthLabel = document.createElement('h3');
+        monthLabel.textContent = getMonthName(month);
+        monthDiv.appendChild(monthLabel);
+
+        for (let day = 0; day < daysInMonths[month]; day++) {
+            const box = document.createElement('div');
+            box.className = 'box';
+            box.dataset.index = boxIndex;
+            box.addEventListener('click', () => chooseKey(box));
+
+            if (boxIndex !== 0) {
+                box.classList.add('disabled');
+            }
+
+            monthDiv.appendChild(box);
+            boxIndex++;
         }
 
-        gridContainer.appendChild(box);
+        gridContainer.appendChild(monthDiv);
     }
+}
+
+function getDaysInMonths(year) {
+    return [
+        31, // January
+        isLeapYear(year) ? 29 : 28, // February (accounting for leap year)
+        31, // March
+        30, // April
+        31, // May
+        30, // June
+        31, // July
+        31, // August
+        30, // September
+        31, // October
+        30, // November
+        31  // December
+    ];
+}
+
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
+function getMonthName(monthIndex) {
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+    ];
+    return monthNames[monthIndex];
 }
 
 function generateEmotionPicker() {
@@ -104,7 +158,7 @@ function loadFile(event) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const jsonData = JSON.parse(e.target.result);
-        Object.assign(data, jsonData["Emotion Tracker"]);
+        Object.assign(data, jsonData["Emotion Tracker"]["Alternatives"]);
         displayData();
         generateEmotionPicker();
     };
@@ -120,4 +174,12 @@ function saveToFile() {
     a.download = 'data.json';
     a.click();
     URL.revokeObjectURL(url);
+}
+
+function updateHeadings(metadata) {
+    const yearHeading = document.querySelector('h1');
+    const titleHeading = document.querySelector('h2');
+
+    yearHeading.textContent = metadata.Year;
+    titleHeading.textContent = metadata.Title;
 }
