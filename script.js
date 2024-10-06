@@ -29,20 +29,7 @@ function loadData() {
 
     Object.assign(data, sampleData["Emotion Tracker"]["Alternatives"]);
     updateHeadings(sampleData["Emotion Tracker"]["Metadata"]);
-    displayData();
     generateEmotionPicker();
-}
-
-function displayData() {
-    const container = document.getElementById('data-container');
-    container.innerHTML = '';
-    for (const [key, color] of Object.entries(data)) {
-        const div = document.createElement('div');
-        div.className = 'key-label';
-        div.style.color = color;
-        div.textContent = `${key}: ${color}`;
-        container.appendChild(div);
-    }
 }
 
 function createGrid() {
@@ -121,7 +108,19 @@ function generateEmotionPicker() {
         emotionBox.addEventListener('click', (event) => {
             selectEmotion(event.target.dataset.emotion);
         });
-        emotionPicker.appendChild(emotionBox);
+
+        const emotionLabel = document.createElement('span');
+        emotionLabel.textContent = emotion;
+        emotionLabel.style.marginLeft = '10px';
+        emotionLabel.style.marginRight = '10px';
+
+        const emotionContainer = document.createElement('div');
+        emotionContainer.style.display = 'flex';
+        emotionContainer.style.alignItems = 'center';
+        emotionContainer.appendChild(emotionBox);
+        emotionContainer.appendChild(emotionLabel);
+
+        emotionPicker.appendChild(emotionContainer);
     }
 }
 
@@ -159,7 +158,6 @@ function loadFile(event) {
     reader.onload = (e) => {
         const jsonData = JSON.parse(e.target.result);
         Object.assign(data, jsonData["Emotion Tracker"]["Alternatives"]);
-        displayData();
         generateEmotionPicker();
     };
     reader.readAsText(file);
