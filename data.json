@@ -9,6 +9,7 @@
             "Sad": "#1E90FF",
             "Angry": "#FF4500",
             "Neutral": "#A9A9A9"
-        }
+        },
+        "Grid": null
     }
 }

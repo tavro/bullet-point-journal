@@ -9,15 +9,20 @@
 <body>
     <h1>[Year]</h1>
     <h2>[Title]</h2>
-
+    
+    <div>
+        <input type="file" id="file-input" accept=".json">
+        <label for="file-input" id="file-input-label">Load From File</label>
+        <button id="save-button">Save To File</button>
+        <!--<button id="save-button">Create Custom Tracker</button>-->
+    </div>
+    
     <div id="grid-container" class="grid-container"></div>
 
     <div id="emotion-picker" class="emotion-picker">
         <div id="emotion-options" class="emotion-options"></div>
     </div>
 
-    <input type="file" id="file-input" accept=".json">
-    <button id="save-button">Save to JSON</button>
     <script src="script.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ let selectedBox = null;
 let lastFilledIndex = -1;
 
 const data = {};
+const gridData = {};
 const gridSize = 365;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,6 +31,12 @@ function loadData() {
     Object.assign(data, sampleData["Emotion Tracker"]["Alternatives"]);
     updateHeadings(sampleData["Emotion Tracker"]["Metadata"]);
     generateEmotionPicker();
+
+    const storedGridData = localStorage.getItem('gridData');
+    if (storedGridData) {
+        Object.assign(gridData, JSON.parse(storedGridData));
+        lastFilledIndex = Object.keys(gridData).length - 1;
+    }
 }
 
 function createGrid() {
@@ -37,7 +44,6 @@ function createGrid() {
     gridContainer.innerHTML = '';
 
     const year = parseInt(document.querySelector('h1').textContent);
-
     const daysInMonths = getDaysInMonths(year);
 
     let boxIndex = 0;
@@ -55,7 +61,13 @@ function createGrid() {
             box.dataset.index = boxIndex;
             box.addEventListener('click', () => chooseKey(box));
 
-            if (boxIndex !== 0) {
+            if (gridData[boxIndex]) {
+                box.style.backgroundColor = data[gridData[boxIndex]];
+                box.dataset.key = gridData[boxIndex];
+                box.classList.add('disabled');
+            }
+
+            if (boxIndex !== 0 && !gridData[boxIndex - 1]) {
                 box.classList.add('disabled');
             }
 
@@ -139,14 +151,19 @@ function selectEmotion(emotion) {
         selectedBox.style.backgroundColor = data[emotion];
         selectedBox.dataset.key = emotion;
 
-        lastFilledIndex = parseInt(selectedBox.dataset.index);
+        const boxIndex = parseInt(selectedBox.dataset.index);
+        gridData[boxIndex] = emotion;
+
+        lastFilledIndex = boxIndex;
 
         selectedBox.classList.add('disabled');
-        
+
         const nextBox = document.querySelector(`[data-index="${lastFilledIndex + 1}"]`);
         if (nextBox) {
             nextBox.classList.remove('disabled');
         }
+
+        localStorage.setItem('gridData', JSON.stringify(gridData));
     }
     const emotionPicker = document.getElementById('emotion-picker');
     emotionPicker.style.display = 'none';
@@ -157,14 +174,36 @@ function loadFile(event) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const jsonData = JSON.parse(e.target.result);
+
         Object.assign(data, jsonData["Emotion Tracker"]["Alternatives"]);
+
+        Object.keys(gridData).forEach(key => delete gridData[key]);
+        Object.assign(gridData, jsonData["Emotion Tracker"]["Grid"] || {});
+
         generateEmotionPicker();
+
+        lastFilledIndex = Object.keys(gridData).length - 1;
+
+        createGrid();
+
+        const nextBox = document.querySelector(`[data-index="${lastFilledIndex + 1}"]`);
+        if (nextBox) {
+            nextBox.classList.remove('disabled');
+        }
+
+        localStorage.setItem('gridData', JSON.stringify(gridData));
     };
     reader.readAsText(file);
 }
 
 function saveToFile() {
-    const jsonData = JSON.stringify({ "Emotion Tracker": data }, null, 2);
+    const jsonData = JSON.stringify({
+        "Emotion Tracker": {
+            "Alternatives": data,
+            "Grid": gridData
+        }
+    }, null, 2);
+
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
